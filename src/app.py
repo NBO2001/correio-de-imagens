@@ -38,7 +38,7 @@ def upload_imagens():
             return jsonify(
                 {
                     'Error': False,
-                    'msg': 'Salvo com sucesso',
+                    'msg': 'Foi salvo com sucesso',
                     'boxs': length_boxs,
                     'endboxs': end_box,
                 }
