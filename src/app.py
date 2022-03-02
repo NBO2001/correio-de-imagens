@@ -6,6 +6,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
 from werkzeug.utils import secure_filename
 
+from model import insert
 from utils import count_folders, create_folder, trim
 
 app = Flask(__name__)
@@ -23,11 +24,17 @@ def upload_imagens():
 
             fileName = arq.filename
 
+            value_the_box = trim(path).split('.')
+
             create_folder(trim(path))
 
             arq.save(f'./{trim(path)}/{secure_filename(fileName)}')
             length_boxs, end_box = count_folders()
-
+            insert(
+                value_the_box[0],
+                value_the_box[1],
+                f'/{trim(path)}/{secure_filename(fileName)}',
+            )
             return jsonify(
                 {
                     'Error': False,
