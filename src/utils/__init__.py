@@ -1,4 +1,5 @@
 from os import mkdir, path, walk
+from shutil import copy
 from sys import platform
 
 
@@ -56,3 +57,13 @@ def count_folders():
             ultima_box = compartor_folders(ultima_box, inpath)
 
     return (count, ultima_box)
+
+
+def photos_move():
+
+    create_folder('photos')
+    for away, _, files in walk(convert_url('./')):
+        if away != convert_url('./') and away != convert_url('./photos'):
+
+            for file in files:
+                copy(convert_url(f'{away}/{file}'), convert_url('./photos/'))

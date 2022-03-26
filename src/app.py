@@ -1,12 +1,13 @@
 import os
 import socket
+from os.path import abspath
 
 import pyqrcode
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS, cross_origin
 from werkzeug.utils import secure_filename
 
-from model import insert
+from model import insert, mapping, querry
 from utils import count_folders, create_folder, trim
 
 app = Flask(__name__)
@@ -24,17 +25,11 @@ def upload_imagens():
 
             fileName = arq.filename
 
-            value_the_box = trim(path).split('.')
-
             create_folder(trim(path))
 
             arq.save(f'./{trim(path)}/{secure_filename(fileName)}')
             length_boxs, end_box = count_folders()
-            insert(
-                value_the_box[0],
-                value_the_box[1],
-                f'/{trim(path)}/{secure_filename(fileName)}',
-            )
+            mapping()
             return jsonify(
                 {
                     'Error': False,
@@ -55,6 +50,21 @@ def upload_imagens():
             return jsonify({'Error': True, 'msg': 'Ocorreu um erro'})
 
 
+@app.route('/api/imgs/<string:box>/<int:img_index>', methods=['GET', 'POST'])
+@cross_origin(supports_credentials=True)
+def getImage(box: str, img_index: int):
+
+    data = querry(box)[0]
+
+    imagens = data['imgs']
+
+    if request.method == 'GET':
+        return send_file(
+            f'{abspath("./")}/{box}/{imagens[img_index-1]}',
+            mimetype='image/jpg',
+        )
+
+
 if __name__ == '__main__':
 
     port = int(os.environ.get('PORT', 5000))
@@ -64,7 +74,7 @@ if __name__ == '__main__':
 
     ip = s.getsockname()[0]
 
-    url = pyqrcode.create(f'http://{ip}:5000/home')
+    url = pyqrcode.create(f'http://{ip}:3000')
 
     print(url.terminal(quiet_zone=2))
 
